@@ -42,65 +42,35 @@ public:
     void preorder();
     vector<pair<string, char>> cg;
     tree(){ this->root=NULL; }
+    tree(node* root){ this->root=root; }
 };
 
 
-void c_gen(vector<pic>& v)
+void build_t(multimap<ll, tree*>& m, vector<ll>& v)
 {
-    stack<tree*> _stack;
-    ll i=v.size()-1, sum=0;
-    sort(v.begin(), v.end(), greater<pic>());
-    while (i>=0) {
-        if(!_stack.empty())
-        {
-            tree* a = _stack.top();
-            if(a->root->sum > v[i].first)
-            {
-                tree* t = new tree();
-                sum+=v[i].first;
-                node* p = new node(v[i].second, v[i].first);
-                i--;
-                sum+=v[i].first;
-                node* q = new node(v[i].second, v[i].first);
-                i--;
-                node* pq = new node(p, q, sum);
-                t->root = pq;
-
-                _stack.pop();
-                node* head = new node(t->root, a->root, sum);
-                t->root=head;
-                _stack.push(t);
-            }
-            else
-            {
-                _stack.pop();
-                sum+=v[i].first;
-                node* p = new node(v[i].second, v[i].first);
-                i--;
-                node* q = new node(p, a->root, sum);
-                a->root = q;
-                _stack.push(a);
-            }
-        }
-        else
-        {
-            tree* t = new tree();
-            sum+=v[i].first;
-            node* p = new node(v[i].second, v[i].first);
-            i--;
-            sum+=v[i].first;
-            node* q = new node(v[i].second, v[i].first);
-            i--;
-            node* pq = new node(p, q, sum);
-            t->root=pq;
-            _stack.push(t);
-        }
-    }
-    tree* f = _stack.top();
-    f->preorder();
-    for(auto i:f->cg)
+    ll sum=0;
+    while(m.size()>=1)
     {
-        cout << i.second << " :: " << i.first << endl;
+        sort(v.begin(), v.end(), greater<ll>());
+        ll f = v[v.size()-1];
+        multimap<ll, tree*>::iterator i = m.find(f);
+        tree* t = (*i).second;
+        sum += (*i).first;
+        v.pop_back();
+        m.erase(i, m.end());
+
+        i=m.find(v[v.size()-1]);
+        tree* tt = (*i).second;
+        sum += (*i).first;
+        v.pop_back();
+        m.erase(i, m.end());
+
+        node* p= new node(t->root, tt->root, sum);
+        tree* ttt = new tree(p);
+        m.insert(make_pair(sum, ttt));
+        v.push_back(sum);
+
+        sum = 0;
     }
 }
 
@@ -153,16 +123,20 @@ int main()
         freq[c]++;
     }
 
-    vector<pic> vfreq;
-//    multimap<int, node*> m;
-
+    vector<ll> v;
+    multimap<ll, tree*> m;
     for(auto& i:freq){
-//        node* p = new node(i.first, i.second);
-//        m.insert(make_pair(i.first,p));
-//    }
-        vfreq.push_back(make_pair(i.second, i.first));
+        v.push_back(i.second);
+        node* p = new node(i.first, i.second);
+        tree* t = new tree(p);
+        m.insert(make_pair(i.second,t));
     }
-    c_gen(vfreq);
+
+    for(auto& i:m){
+        tree* t = i.second;
+        cout << i.first << "---" << bitset<4>(t->root->c) << endl;
+    }
+    build_t(m, v);
 
     return 0;
 }
