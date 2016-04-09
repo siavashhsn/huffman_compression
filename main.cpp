@@ -23,8 +23,8 @@ public:
         this->sum=sum;
         this->lc=lc;
         this->rc=rc;
-        this->c=c;
-        this->f=f;
+        this->c = (char)NULL;
+        this->f = (ll)NULL;
     }
     node(char c, ll f){
         this->c=c;
@@ -49,22 +49,23 @@ public:
 void build_t(multimap<ll, tree*>& m, vector<ll>& v)
 {
     ll sum=0;
-    while(m.size()>1)
+    while(m.size() > 1)
     {
         sort(v.begin(), v.end(), greater<ll>());
         ll f = v[v.size()-1];
-        auto i = m.find(f)->second;
+        auto i = m.find(f);
+        cout  << "----" << i->first << endl;
         sum += f;
         v.pop_back();
-        m.erase(m.find(f), m.end());
+        m.erase(m.find(f));
 
         f = v[v.size()-1];
-        auto j=m.find(f)->second;
+        auto j=m.find(f);
         sum += f;
         v.pop_back();
-        m.erase(m.find(f), m.end());
+        m.erase(m.find(f));
 
-        node* p= new node(i->root, j->root, sum);
+        node* p= new node(i->second->root, j->second->root, sum);
         tree* ttt = new tree(p);
         m.insert(make_pair(sum, ttt));
         v.push_back(sum);
@@ -80,6 +81,7 @@ void tree::preorder()
     node* p = root;
     stack<node*> s;
     string code="";
+    bool flag=false;
 
     while (true)
     {
@@ -87,12 +89,21 @@ void tree::preorder()
         {
             s.push(p);
             p = p->lc;
-            code.push_back('0');
+            flag = true;
+            if(p!=NULL)
+                code.push_back('0');
         }
-        cg.push_back(make_pair(code, s.top()->c));
-        code.pop_back();
         if (!s.empty())
         {
+            cg.push_back(make_pair(code, s.top()->lc->c));
+            if(flag == true) {
+                code.pop_back();
+            }
+            else {
+                code.pop_back();
+                code.pop_back();
+            }
+            flag = false;
             p = s.top();
             s.pop();
             p = p->rc;
@@ -105,7 +116,6 @@ void tree::preorder()
         cout << bitset<4>(i.second) << "--" << i.first << endl;
     delete p;
 }
-
 
 
 int main()
