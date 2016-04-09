@@ -49,59 +49,60 @@ public:
 void build_t(multimap<ll, tree*>& m, vector<ll>& v)
 {
     ll sum=0;
-    while(m.size()>=1)
+    while(m.size()>1)
     {
         sort(v.begin(), v.end(), greater<ll>());
         ll f = v[v.size()-1];
-        multimap<ll, tree*>::iterator i = m.find(f);
-        tree* t = (*i).second;
-        sum += (*i).first;
+        auto i = m.find(f)->second;
+        sum += f;
         v.pop_back();
-        m.erase(i, m.end());
+        m.erase(m.find(f), m.end());
 
-        i=m.find(v[v.size()-1]);
-        tree* tt = (*i).second;
-        sum += (*i).first;
+        f = v[v.size()-1];
+        auto j=m.find(f)->second;
+        sum += f;
         v.pop_back();
-        m.erase(i, m.end());
+        m.erase(m.find(f), m.end());
 
-        node* p= new node(t->root, tt->root, sum);
+        node* p= new node(i->root, j->root, sum);
         tree* ttt = new tree(p);
         m.insert(make_pair(sum, ttt));
         v.push_back(sum);
-
         sum = 0;
     }
+    tree* i = m.begin()->second;
+    i->preorder();
 }
 
 
 void tree::preorder()
 {
     node* p = root;
-    vector<int> ans;
     stack<node*> s;
-    string code;
+    string code="";
 
     while (true)
     {
         while (p != NULL)
         {
             s.push(p);
-            ans.push_back(p->c);
             p = p->lc;
             code.push_back('0');
         }
-        cg.push_back(make_pair(code, p->c));
+        cg.push_back(make_pair(code, s.top()->c));
         code.pop_back();
         if (!s.empty())
         {
             p = s.top();
             s.pop();
             p = p->rc;
-            code.push_back('1');
+            if(p!=NULL)
+                code.push_back('1');
         }
         else break;
     }
+    for(auto& i:cg)
+        cout << bitset<4>(i.second) << "--" << i.first << endl;
     delete p;
 }
 
