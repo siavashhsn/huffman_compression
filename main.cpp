@@ -19,12 +19,14 @@ public:
     ll sum;
     node* lc;
     node* rc;
+    bool vrc;
     node(node* lc, node* rc, ll sum) {
         this->sum=sum;
         this->lc=lc;
         this->rc=rc;
         this->c = (char)NULL;
         this->f = (ll)NULL;
+        vrc =false;
     }
     node(char c, ll f){
         this->c=c;
@@ -32,6 +34,7 @@ public:
         this->lc = NULL;
         this->rc = NULL;
         this->sum = 0;
+        vrc=false;
     }
 };
 
@@ -39,6 +42,7 @@ class tree
 {
 public:
     node* root;
+    vector<pair<string, char>> ans;
     void preorder();
     vector<pair<string, char>> cg;
     tree(){ this->root=NULL; }
@@ -54,7 +58,6 @@ void build_t(multimap<ll, tree*>& m, vector<ll>& v)
         sort(v.begin(), v.end(), greater<ll>());
         ll f = v[v.size()-1];
         auto i = m.find(f);
-        cout  << "----" << i->first << endl;
         sum += f;
         v.pop_back();
         m.erase(m.find(f));
@@ -79,40 +82,42 @@ void build_t(multimap<ll, tree*>& m, vector<ll>& v)
 void tree::preorder()
 {
     node* p = root;
+    node* q;
     stack<node*> s;
     string code="";
-    bool flag=false;
 
     while (true)
     {
         while (p != NULL)
         {
             s.push(p);
+            q=p;
             p = p->lc;
-            flag = true;
             if(p!=NULL)
                 code.push_back('0');
         }
+        ans.push_back(make_pair(code, q->c));
+        code.pop_back();
+        s.pop();
         if (!s.empty())
         {
-            cg.push_back(make_pair(code, s.top()->lc->c));
-            if(flag == true) {
-                code.pop_back();
+            while(!s.empty() && s.top()->vrc == true) {
+                if(!s.empty()) {
+                    if(code.length() > 0)
+                        code.pop_back();
+                    s.pop();
+                }
+                if(s.empty()) goto endloop;
             }
-            else {
-                code.pop_back();
-                code.pop_back();
-            }
-            flag = false;
             p = s.top();
-            s.pop();
             p = p->rc;
-            if(p!=NULL)
-                code.push_back('1');
+            s.top()->vrc = true;
+            code.push_back('1');
         }
         else break;
     }
-    for(auto& i:cg)
+endloop:
+    for(auto& i:ans)
         cout << bitset<4>(i.second) << "--" << i.first << endl;
     delete p;
 }
