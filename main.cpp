@@ -42,15 +42,14 @@ class tree
 {
 public:
     node* root;
-    vector<pair<string, char>> ans;
+    map<vector<bitset<1>>, char> ans;
     void preorder();
-    vector<pair<string, char>> cg;
     tree(){ this->root=NULL; }
     tree(node* root){ this->root=root; }
 };
 
 
-void build_t(multimap<ll, tree*>& m, vector<ll>& v)
+map<vector<bitset<1>>, char> build_t(multimap<ll, tree*>& m, vector<ll>& v)
 {
     ll sum=0;
     while(m.size() > 1)
@@ -76,6 +75,7 @@ void build_t(multimap<ll, tree*>& m, vector<ll>& v)
     }
     tree* i = m.begin()->second;
     i->preorder();
+    return i->ans;
 }
 
 
@@ -84,7 +84,7 @@ void tree::preorder()
     node* p = root;
     node* q;
     stack<node*> s;
-    string code="";
+    vector<bitset<1>> code;
 
     while (true)
     {
@@ -94,16 +94,16 @@ void tree::preorder()
             q=p;
             p = p->lc;
             if(p!=NULL)
-                code.push_back('0');
+                code.push_back(0);
         }
-        ans.push_back(make_pair(code, q->c));
+        ans[code] = q->c;
         code.pop_back();
         s.pop();
         if (!s.empty())
         {
             while(!s.empty() && s.top()->vrc == true) {
                 if(!s.empty()) {
-                    if(code.length() > 0)
+//                    if(code.size() > 0)
                         code.pop_back();
                     s.pop();
                 }
@@ -112,13 +112,11 @@ void tree::preorder()
             p = s.top();
             p = p->rc;
             s.top()->vrc = true;
-            code.push_back('1');
+            code.push_back(1);
         }
         else break;
     }
 endloop:
-    for(auto& i:ans)
-        cout << bitset<4>(i.second) << "--" << i.first << endl;
     delete p;
 }
 
@@ -148,11 +146,19 @@ int main()
         m.insert(make_pair(i.second,t));
     }
 
-    for(auto& i:m){
-        tree* t = i.second;
-        cout << i.first << "---" << bitset<4>(t->root->c) << endl;
-    }
-    build_t(m, v);
+//    for(auto& i:m){
+//        tree* t = i.second;
+//        cout << i.first << "---" << bitset<4>(t->root->c) << endl;
+//    }
+
+    auto t = build_t(m, v);
+//    vector<char> output;
+//    for(auto& i:buffer) {
+//        char c = buffer[i] & 0b00001111;
+//        output.push_back();
+//        c = buffer[i] >> 4;
+//        freq[c]++;
+//    }
 
     return 0;
 }
